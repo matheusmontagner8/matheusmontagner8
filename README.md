@@ -1,46 +1,32 @@
-<div align="center">
+<img src="assets/hero.svg" alt="Painel de Matheus Montagner com nível, pontuação e métricas de atividade no GitHub" width="100%">
 
-<img src="assets/hero.svg" alt="Ficha de personagem de Matheus Montagner com nível, XP e atributos" width="100%">
+## Metas em andamento
 
-**Desenvolvedor de Sistemas ERP · Full-Stack · Front-end · Back-end · Power BI**
+<img src="assets/metas.svg" alt="Metas semanais, mensal e próximo marco com o progresso atual" width="100%">
 
-</div>
+## Marcos
 
-## 📜 Quadro de missões
+<img src="assets/marcos.svg" alt="Marcos alcançados e pendentes com o progresso de cada um" width="100%">
 
-<img src="assets/quests.svg" alt="Missões semanais, mensais e principal com progresso atual" width="100%">
+## Projetos
 
-## 🏆 Sala de troféus
-
-<img src="assets/achievements.svg" alt="Conquistas desbloqueadas e bloqueadas com progresso" width="100%">
-
-## 🗺️ Dungeons exploradas
-
-<!-- DUNGEONS:START -->
-| Dungeon | Missão | Linguagem | Última exploração |
+<!-- PROJETOS:START -->
+| Projeto | Descrição | Linguagem | Última atualização |
 |---|---|---|---|
 | [Modelagem-de-Dados](https://github.com/matheusmontagner8/Modelagem-de-Dados) | Modelagem de Banco de Dados - Modelo Conceitual (DER) e Dicionário de Dados | HTML | 05/11/2026 |
 | [portfolio-matheus-montagner](https://github.com/matheusmontagner8/portfolio-matheus-montagner) | Portfólio de projetos | Python | 16/09/2026 |
 | [achadinhos-linktree](https://github.com/matheusmontagner8/achadinhos-linktree) | Página de links (estilo Linktree) do Achadinhos Mais | HTML | 15/09/2026 |
 | [triage-trio-plus](https://github.com/matheusmontagner8/triage-trio-plus) | Projeto de Engenharia de Prompt e IA | TypeScript | 10/09/2026 |
-<!-- DUNGEONS:END -->
-
-## 🐍 Arena de contribuições
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="dist/snake-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="dist/snake-light.svg">
-  <img alt="Animação de uma cobra percorrendo o gráfico de contribuições" src="dist/snake-light.svg" width="100%">
-</picture>
+<!-- PROJETOS:END -->
 
 <details>
-<summary><b>⚙️ Como funciona o sistema de XP</b></summary>
+<summary><b>Como a pontuação é calculada</b></summary>
 
 <br>
 
-Os dados vêm da API do GitHub e a ficha é atualizada todo dia por uma GitHub Action.
+Os dados vêm da API do GitHub e o painel é atualizado todos os dias por uma GitHub Action.
 
-| Ação | XP |
+| Item | Pontos |
 |---|---|
 | Contribuição | 10 |
 | Pull request | +40 |
@@ -50,6 +36,6 @@ Os dados vêm da API do GitHub e a ficha é atualizada todo dia por uma GitHub A
 | Seguidor | 30 |
 | Cada dia da maior sequência | 20 |
 
-Cada nível exige mais XP que o anterior: o nível N começa em `100 × (N − 1)²` XP.
+O nível N começa em `100 × (N − 1)²` pontos.
 
 </details>

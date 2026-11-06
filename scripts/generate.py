@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Gera a ficha de RPG do perfil a partir de dados reais do GitHub.
+"""Gera o painel de atividade do perfil a partir de dados reais do GitHub.
 
-Saidas: assets/hero.svg, assets/achievements.svg, assets/quests.svg
-e a tabela de dungeons no README.md. Usa apenas a biblioteca padrao.
+Saidas: assets/hero.svg, assets/marcos.svg, assets/metas.svg
+e a tabela de projetos no README.md. Usa apenas a biblioteca padrao.
 
 Uso: GH_TOKEN=<token> python scripts/generate.py
 """
@@ -24,10 +24,8 @@ BRT = timezone(timedelta(hours=-3))  # Brasil: UTC-3 fixo, sem horario de verao
 FONT = "ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace"
 BG, PANEL, BORDER = "#0d1117", "#161b22", "#30363d"
 TEXT, MUTED = "#e6edf3", "#8b949e"
-GOLD, GREEN, PURPLE, BLUE, RED = "#f2c94c", "#3fb950", "#a371f7", "#58a6ff", "#f85149"
-
-FRONT = {"HTML", "CSS", "TypeScript", "JavaScript", "Vue", "Svelte"}
-DATA = {"Python", "Jupyter Notebook", "PLpgSQL", "SQL", "TSQL", "R"}
+GREEN, BLUE = "#3fb950", "#58a6ff"
+HEADLINE = "Desenvolvedor Full-Stack · Sistemas ERP · Power BI"
 
 PROFILE_QUERY = """
 query($login:String!){user(login:$login){
@@ -53,7 +51,7 @@ def graphql(token, query, **variables):
     req = urllib.request.Request(
         "https://api.github.com/graphql",
         data=json.dumps({"query": query, "variables": variables}).encode(),
-        headers={"Authorization": f"bearer {token}", "User-Agent": "profile-rpg"},
+        headers={"Authorization": f"bearer {token}", "User-Agent": "profile-dashboard"},
     )
     with urllib.request.urlopen(req, timeout=30) as resp:
         payload = json.load(resp)
@@ -97,24 +95,6 @@ def streaks(days, today):
     return current, best
 
 
-def player_class(languages):
-    names = set(languages)
-    if names & FRONT and names & DATA:
-        return "Paladino Full-Stack"
-    if names & DATA:
-        return "Alquimista de Dados"
-    if names & FRONT:
-        return "Ilusionista de Interfaces"
-    return "Aventureiro"
-
-
-def rank_title(level):
-    for minimum, title in ((30, "Lenda"), (20, "Mestre"), (10, "Veterano"), (5, "Aventureiro")):
-        if level >= minimum:
-            return title
-    return "Aprendiz"
-
-
 def build_stats(user, days, prs, issues, today):
     repos = user["repositories"]["nodes"]
     languages = {}
@@ -126,9 +106,9 @@ def build_stats(user, days, prs, issues, today):
     contributions = sum(days.values())
     stars = sum(r["stargazerCount"] for r in repos)
     followers = user["followers"]["totalCount"]
-    xp = (contributions * 10 + prs * 40 + issues * 20 + len(repos) * 100
-          + stars * 50 + followers * 30 + best * 20)
-    level = math.isqrt(xp // 100) + 1
+    points = (contributions * 10 + prs * 40 + issues * 20 + len(repos) * 100
+              + stars * 50 + followers * 30 + best * 20)
+    level = math.isqrt(points // 100) + 1
     monday = today - timedelta(days=today.weekday())
     week = [days.get(monday + timedelta(days=i), 0) for i in range(7)]
     return {
@@ -136,9 +116,8 @@ def build_stats(user, days, prs, issues, today):
         "contributions": contributions, "prs": prs, "issues": issues,
         "stars": stars, "followers": followers, "current": current, "best": best,
         "active_days": sum(1 for count in days.values() if count),
-        "xp": xp, "level": level,
+        "points": points, "level": level,
         "level_floor": 100 * (level - 1) ** 2, "level_ceil": 100 * level ** 2,
-        "class": player_class(languages), "rank": rank_title(level),
         "week_days": sum(1 for count in week if count), "week_total": sum(week),
         "month_repos": sum(
             1 for r in repos
@@ -148,21 +127,21 @@ def build_stats(user, days, prs, issues, today):
     }
 
 
-def achievements(s):
-    """(icone, titulo, descricao, valor atual, meta). Desc cabe em ~27 caracteres."""
+def milestones(s):
+    """(titulo, descricao, valor atual, alvo). Descricao cabe em ~27 caracteres."""
     return [
-        ("🌱", "Primeiros Passos", "Faça sua 1ª contribuição", s["contributions"], 1),
-        ("⚔️", "Centurião", "100 contribuições", s["contributions"], 100),
-        ("🏛️", "Lenda dos Commits", "1.000 contribuições", s["contributions"], 1000),
-        ("🔥", "Semana em Chamas", "7 dias seguidos", s["best"], 7),
-        ("🌋", "Mês Imparável", "30 dias seguidos", s["best"], 30),
-        ("📅", "Veterano", "100 dias com atividade", s["active_days"], 100),
-        ("🗺️", "Explorador", "5 repositórios públicos", len(s["repos"]), 5),
-        ("🧙", "Poliglota", "5 linguagens diferentes", len(s["languages"]), 5),
-        ("🤝", "Aliado", "Abra 1 pull request", s["prs"], 1),
-        ("🐛", "Caçador de Bugs", "Abra 5 issues", s["issues"], 5),
-        ("⭐", "Primeira Estrela", "Ganhe 1 estrela", s["stars"], 1),
-        ("👥", "Guilda", "Tenha 5 seguidores", s["followers"], 5),
+        ("Primeira contribuição", "1 contribuição registrada", s["contributions"], 1),
+        ("Consistência inicial", "100 contribuições", s["contributions"], 100),
+        ("Volume de entregas", "1.000 contribuições", s["contributions"], 1000),
+        ("Constância semanal", "7 dias consecutivos", s["best"], 7),
+        ("Constância mensal", "30 dias consecutivos", s["best"], 30),
+        ("Atividade contínua", "100 dias com atividade", s["active_days"], 100),
+        ("Portfólio público", "5 repositórios públicos", len(s["repos"]), 5),
+        ("Diversidade técnica", "5 linguagens diferentes", len(s["languages"]), 5),
+        ("Colaboração", "1 pull request", s["prs"], 1),
+        ("Gestão de issues", "5 issues abertas", s["issues"], 5),
+        ("Reconhecimento", "1 estrela recebida", s["stars"], 1),
+        ("Rede profissional", "5 seguidores", s["followers"], 5),
     ]
 
 
@@ -182,11 +161,11 @@ def bar(x, y, width, height, ratio, color):
             f'fill="{BORDER}"/>{fill}')
 
 
-def svg(width, height, body, title, style=""):
+def svg(width, height, body, title):
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}" role="img" aria-label="{escape(title)}">'
-        f'<title>{escape(title)}</title><style>text{{font-family:{FONT}}}{style}</style>'
+        f'<title>{escape(title)}</title><style>text{{font-family:{FONT}}}</style>'
         f'<rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="12" '
         f'fill="{BG}" stroke="{BORDER}"/>{body}</svg>'
     )
@@ -211,7 +190,7 @@ AVATAR = """
 ....DDD..DDD....
 """.split()
 AVATAR_COLORS = {"H": "#0a0a0a", "S": "#e8b98f", "E": BG, "M": "#a8644a",
-                 "B": BLUE, "G": GOLD, "D": "#1f2933"}
+                 "B": BLUE, "G": "#f2c94c", "D": "#1f2933"}
 
 
 def avatar(x, y, pixel):
@@ -221,108 +200,110 @@ def avatar(x, y, pixel):
             if char in AVATAR_COLORS:
                 rects.append(f'<rect x="{x + col * pixel}" y="{y + row * pixel}" '
                              f'width="{pixel}" height="{pixel}" fill="{AVATAR_COLORS[char]}"/>')
-    return f'<g class="bob">{"".join(rects)}</g>'
+    return "".join(rects)
 
 
 def hero_svg(s):
     span = s["level_ceil"] - s["level_floor"]
-    ratio = (s["xp"] - s["level_floor"]) / span
-    attributes = [
-        ("FOR", "Contribuições", s["contributions"] / 10, RED),
-        ("DES", "Maior sequência", s["best"] * 3, GREEN),
-        ("CON", "Repositórios", len(s["repos"]) * 8, GOLD),
-        ("INT", "Linguagens", len(s["languages"]) * 8, BLUE),
-        ("SAB", "Dias ativos", s["active_days"] / 3, PURPLE),
-        ("CAR", "Estrelas + seguidores", (s["stars"] + s["followers"]) * 5, "#ff7ab6"),
+    ratio = (s["points"] - s["level_floor"]) / span
+    metrics = [
+        (s["contributions"], "Contribuições"),
+        (s["active_days"], "Dias ativos"),
+        (len(s["repos"]), "Repositórios públicos"),
+        (len(s["languages"]), "Linguagens"),
+        (f'{s["current"]} dias', "Sequência atual"),
+        (f'{s["best"]} dias', "Maior sequência"),
     ]
+    score = f'{s["points"]:,} / {s["level_ceil"]:,} pontos'.replace(",", ".")
     body = [
         f'<rect x="24" y="24" width="176" height="176" rx="10" fill="#6e7f96" stroke="{BORDER}"/>',
         avatar(32, 32, 10),
-        f'<rect x="24" y="212" width="176" height="44" rx="10" fill="{GOLD}"/>',
-        text(112, 242, f'NÍVEL {s["level"]}', 22, BG, "bold", "middle"),
-        text(224, 52, s["name"], 26, TEXT, "bold"),
-        text(224, 78, f'{s["class"]} · {s["rank"]}', 15, GOLD, "bold"),
-        text(224, 112, "XP", 12, MUTED, "bold"),
-        text(816, 112, f'{s["xp"]:,} / {s["level_ceil"]:,}'.replace(",", "."), 12, MUTED,
-             "normal", "end"),
-        bar(224, 120, 592, 14, ratio, GREEN),
+        f'<rect x="24" y="212" width="176" height="44" rx="10" fill="{PANEL}" stroke="{BORDER}"/>',
+        text(112, 240, f'Nível {s["level"]}', 18, TEXT, "bold", "middle"),
+        text(224, 50, s["name"], 26, TEXT, "bold"),
+        text(224, 74, HEADLINE, 14, MUTED),
+        text(224, 106, f'Progresso para o nível {s["level"] + 1}', 12, MUTED),
+        text(816, 106, score, 12, MUTED, "normal", "end"),
+        bar(224, 114, 592, 10, ratio, BLUE),
     ]
-    for index, (code, label, value, color) in enumerate(attributes):
-        x = 224 + (index // 3) * 304
-        y = 164 + (index % 3) * 32
-        points = min(99, int(value))
+    for index, (value, label) in enumerate(metrics):
+        x = 224 + (index % 3) * 201.5
+        y = 144 + (index // 3) * 60
         body += [
-            text(x, y, code, 13, color, "bold"),
-            text(x + 36, y, label, 11, MUTED),
-            text(x + 288, y, points, 13, TEXT, "bold", "end"),
-            bar(x, y + 6, 288, 6, points / 99, color),
+            f'<rect x="{x}" y="{y}" width="189" height="52" rx="8" fill="{PANEL}" stroke="{BORDER}"/>',
+            text(x + 14, y + 25, value, 17, TEXT, "bold"),
+            text(x + 14, y + 42, label, 11, MUTED),
         ]
-    body.append(text(24, 280, f'🔥 Sequência atual: {s["current"]} dias · Recorde: {s["best"]} dias', 12, MUTED))
-    body.append(text(816, 280, f'Atualizado em {s["today"].strftime("%d/%m/%Y")}', 11, MUTED, "normal", "end"))
-    style = (".bob{animation:bob 2.4s ease-in-out infinite}"
-             "@keyframes bob{50%{transform:translateY(-4px)}}"
-             "@media (prefers-reduced-motion:reduce){.bob{animation:none}}")
-    title = f'{s["name"]}: nível {s["level"]}, {s["class"]}, {s["xp"]} XP'
-    return svg(840, 300, "".join(body), title, style)
+    body.append(text(24, 282, "Dados públicos do GitHub", 11, MUTED))
+    body.append(text(816, 282, f'Atualizado em {s["today"].strftime("%d/%m/%Y")}', 11, MUTED, "normal", "end"))
+    title = f'{s["name"]}: nível {s["level"]}, {s["points"]} pontos'
+    return svg(840, 300, "".join(body), title)
 
 
-def achievements_svg(s):
-    items = achievements(s)
-    unlocked = sum(1 for item in items if item[3] >= item[4])
+def status_mark(cx, cy, done):
+    if not done:
+        return f'<circle cx="{cx}" cy="{cy}" r="11" fill="none" stroke="{MUTED}" stroke-width="2"/>'
+    return (f'<circle cx="{cx}" cy="{cy}" r="12" fill="{GREEN}"/>'
+            f'<path d="M{cx - 5} {cy} l3.5 3.5 l6.5 -7" fill="none" stroke="{BG}" '
+            f'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>')
+
+
+def milestones_svg(s):
+    items = milestones(s)
+    reached = sum(1 for item in items if item[2] >= item[3])
     body = [
-        text(24, 36, "🏆 Conquistas", 18, TEXT, "bold"),
-        text(816, 36, f"{unlocked} de {len(items)} desbloqueadas", 13, GOLD, "bold", "end"),
+        text(24, 36, "Marcos", 18, TEXT, "bold"),
+        text(816, 36, f"{reached} de {len(items)} alcançados", 13, MUTED, "normal", "end"),
     ]
-    for index, (icon, title, desc, value, goal) in enumerate(items):
+    for index, (title, desc, value, goal) in enumerate(items):
         x = 16 + (index % 3) * 272
         y = 54 + (index // 3) * 88
         done = value >= goal
-        body.append(f'<g opacity="{1 if done else 0.62}">')
-        body.append(f'<rect x="{x}" y="{y}" width="264" height="80" rx="10" fill="{PANEL}" '
-                    f'stroke="{GOLD if done else BORDER}"/>')
-        body.append(text(x + 14, y + 36, icon if done else "🔒", 24))
-        body.append(text(x + 54, y + 26, title, 13, GOLD if done else TEXT, "bold"))
-        body.append(text(x + 54, y + 44, desc, 11, MUTED))
-        body.append(bar(x + 54, y + 56, 130, 6, value / goal, GREEN if done else BLUE))
-        body.append(text(x + 250, y + 63, f"{min(value, goal)}/{goal}", 10, MUTED, "normal", "end"))
-        body.append("</g>")
+        body += [
+            f'<rect x="{x}" y="{y}" width="264" height="80" rx="10" fill="{PANEL}" stroke="{BORDER}"/>',
+            status_mark(x + 28, y + 32, done),
+            text(x + 54, y + 26, title, 13, TEXT, "bold"),
+            text(x + 54, y + 44, desc, 11, MUTED),
+            bar(x + 54, y + 56, 130, 6, value / goal, GREEN if done else BLUE),
+            text(x + 250, y + 63, f"{min(value, goal)}/{goal}", 10, MUTED, "normal", "end"),
+        ]
     rows = math.ceil(len(items) / 3)
     return svg(840, 54 + rows * 88 + 8, "".join(body),
-               f"Conquistas: {unlocked} de {len(items)} desbloqueadas")
+               f"Marcos: {reached} de {len(items)} alcançados")
 
 
-def quests(s):
-    locked = [item for item in achievements(s) if item[3] < item[4]]
-    locked.sort(key=lambda item: item[3] / item[4], reverse=True)
+def goals(s):
+    pending = [item for item in milestones(s) if item[2] < item[3]]
+    pending.sort(key=lambda item: item[2] / item[3], reverse=True)
     rows = [
-        ("SEMANAL", "Dias com atividade nesta semana", s["week_days"], 5, BLUE),
-        ("SEMANAL", "Contribuições nesta semana", s["week_total"], 20, BLUE),
-        ("MENSAL", "Criar um repositório novo neste mês", s["month_repos"], 1, PURPLE),
+        ("SEMANAL", "Dias com atividade nesta semana", s["week_days"], 5),
+        ("SEMANAL", "Contribuições nesta semana", s["week_total"], 20),
+        ("MENSAL", "Novo repositório neste mês", s["month_repos"], 1),
     ]
-    if locked:
-        _, title, desc, value, goal = locked[0]
-        rows.append(("PRINCIPAL", f"{title}: {desc}", value, goal, GOLD))
+    if pending:
+        title, desc, value, goal = pending[0]
+        rows.append(("PRÓXIMO MARCO", f"{title}: {desc}", value, goal))
     return rows
 
 
-def quests_svg(s):
-    rows = quests(s)
-    body = [text(24, 36, "📜 Missões ativas", 18, TEXT, "bold")]
-    for index, (kind, label, value, goal, color) in enumerate(rows):
+def goals_svg(s):
+    rows = goals(s)
+    body = [text(24, 36, "Metas em andamento", 18, TEXT, "bold")]
+    for index, (kind, label, value, goal) in enumerate(rows):
         y = 56 + index * 46
         done = value >= goal
         body += [
             f'<rect x="16" y="{y}" width="808" height="38" rx="8" fill="{PANEL}" stroke="{BORDER}"/>',
-            text(30, y + 24, kind, 11, color, "bold"),
-            text(116, y + 24, ("✓ " if done else "") + label, 12, GREEN if done else TEXT),
-            bar(590, y + 16, 160, 6, value / goal, GREEN if done else color),
+            text(30, y + 24, kind, 11, MUTED, "bold"),
+            text(140, y + 24, label, 12, TEXT),
+            bar(590, y + 16, 160, 6, value / goal, GREEN if done else BLUE),
             text(810, y + 24, f"{min(value, goal)}/{goal}", 12, MUTED, "normal", "end"),
         ]
-    return svg(840, 56 + len(rows) * 46 + 8, "".join(body), "Missões ativas")
+    return svg(840, 56 + len(rows) * 46 + 8, "".join(body), "Metas em andamento")
 
 
-def dungeons_table(s):
-    lines = ["| Dungeon | Missão | Linguagem | Última exploração |", "|---|---|---|---|"]
+def projects_table(s):
+    lines = ["| Projeto | Descrição | Linguagem | Última atualização |", "|---|---|---|---|"]
     for repo in s["repos"]:
         if repo["name"] == LOGIN:
             continue
@@ -337,8 +318,8 @@ def dungeons_table(s):
 def update_readme(s):
     path = ROOT / "README.md"
     content = path.read_text(encoding="utf-8")
-    block = f"<!-- DUNGEONS:START -->\n{dungeons_table(s)}\n<!-- DUNGEONS:END -->"
-    updated = re.sub(r"<!-- DUNGEONS:START -->.*?<!-- DUNGEONS:END -->",
+    block = f"<!-- PROJETOS:START -->\n{projects_table(s)}\n<!-- PROJETOS:END -->"
+    updated = re.sub(r"<!-- PROJETOS:START -->.*?<!-- PROJETOS:END -->",
                      lambda _: block, content, flags=re.S)
     path.write_text(updated, encoding="utf-8", newline="\n")
 
@@ -351,11 +332,11 @@ def main():
     stats = build_stats(user, days, prs, issues, datetime.now(BRT).date())
     ASSETS.mkdir(exist_ok=True)
     for name, content in (("hero", hero_svg(stats)),
-                          ("achievements", achievements_svg(stats)),
-                          ("quests", quests_svg(stats))):
+                          ("marcos", milestones_svg(stats)),
+                          ("metas", goals_svg(stats))):
         (ASSETS / f"{name}.svg").write_text(content, encoding="utf-8", newline="\n")
     update_readme(stats)
-    print(f'Nível {stats["level"]} | {stats["xp"]} XP | {stats["class"]} | '
+    print(f'Nível {stats["level"]} | {stats["points"]} pontos | '
           f'{stats["contributions"]} contribuições | sequência {stats["current"]}/{stats["best"]}')
 
 
