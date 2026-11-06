@@ -6,7 +6,6 @@ e a tabela de dungeons no README.md. Usa apenas a biblioteca padrao.
 
 Uso: GH_TOKEN=<token> python scripts/generate.py
 """
-import base64
 import json
 import math
 import os
@@ -32,7 +31,7 @@ DATA = {"Python", "Jupyter Notebook", "PLpgSQL", "SQL", "TSQL", "R"}
 
 PROFILE_QUERY = """
 query($login:String!){user(login:$login){
-  name createdAt avatarUrl(size:352) followers{totalCount}
+  name createdAt followers{totalCount}
   repositories(first:100,ownerAffiliations:OWNER,privacy:PUBLIC,isFork:false,
                orderBy:{field:PUSHED_AT,direction:DESC}){nodes{
     name description url stargazerCount pushedAt createdAt
@@ -84,12 +83,6 @@ def fetch(token):
     return user, days, prs, issues
 
 
-def fetch_avatar(url):
-    with urllib.request.urlopen(url, timeout=30) as resp:
-        kind = resp.headers.get_content_type()
-        return f"data:{kind};base64,{base64.b64encode(resp.read()).decode()}"
-
-
 def streaks(days, today):
     """Sequencia atual e recorde. Hoje sem atividade ainda nao quebra a atual."""
     best = run = 0
@@ -139,7 +132,7 @@ def build_stats(user, days, prs, issues, today):
     monday = today - timedelta(days=today.weekday())
     week = [days.get(monday + timedelta(days=i), 0) for i in range(7)]
     return {
-        "name": user["name"] or LOGIN, "avatar": fetch_avatar(user["avatarUrl"]), "repos": repos, "languages": languages,
+        "name": user["name"] or LOGIN, "repos": repos, "languages": languages,
         "contributions": contributions, "prs": prs, "issues": issues,
         "stars": stars, "followers": followers, "current": current, "best": best,
         "active_days": sum(1 for count in days.values() if count),
@@ -189,21 +182,46 @@ def bar(x, y, width, height, ratio, color):
             f'fill="{BORDER}"/>{fill}')
 
 
-def svg(width, height, body, title):
+def svg(width, height, body, title, style=""):
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}" role="img" aria-label="{escape(title)}">'
-        f'<title>{escape(title)}</title><style>text{{font-family:{FONT}}}</style>'
+        f'<title>{escape(title)}</title><style>text{{font-family:{FONT}}}{style}</style>'
         f'<rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="12" '
         f'fill="{BG}" stroke="{BORDER}"/>{body}</svg>'
     )
 
 
-def avatar(data_uri, x, y, size):
-    """Foto atual do perfil, embutida porque SVG em <img> nao carrega URLs externas."""
-    return (f'<clipPath id="photo"><rect x="{x}" y="{y}" width="{size}" height="{size}" rx="10"/>'
-            f'</clipPath><image href="{data_uri}" x="{x}" y="{y}" width="{size}" height="{size}" '
-            f'clip-path="url(#photo)" preserveAspectRatio="xMidYMid slice"/>')
+AVATAR = """
+................
+.....HHHHHH.....
+....HHHHHHHH....
+...HHHHHHHHHH...
+...HHSSSSSSHH...
+...HSSSSSSSSH...
+...HSESSSSESH...
+...HSSSSSSSSH...
+....SSSMMSSS....
+.....SSSSSS.....
+...BBBBBBBBBB...
+..BBBBBBBBBBBB..
+..SBBBGGGGBBBS..
+..SBBBGGGGBBBS..
+....DDD..DDD....
+....DDD..DDD....
+""".split()
+AVATAR_COLORS = {"H": "#0a0a0a", "S": "#e8b98f", "E": BG, "M": "#a8644a",
+                 "B": BLUE, "G": GOLD, "D": "#1f2933"}
+
+
+def avatar(x, y, pixel):
+    rects = []
+    for row, line in enumerate(AVATAR):
+        for col, char in enumerate(line):
+            if char in AVATAR_COLORS:
+                rects.append(f'<rect x="{x + col * pixel}" y="{y + row * pixel}" '
+                             f'width="{pixel}" height="{pixel}" fill="{AVATAR_COLORS[char]}"/>')
+    return f'<g class="bob">{"".join(rects)}</g>'
 
 
 def hero_svg(s):
@@ -218,8 +236,8 @@ def hero_svg(s):
         ("CAR", "Estrelas + seguidores", (s["stars"] + s["followers"]) * 5, "#ff7ab6"),
     ]
     body = [
-        f'<rect x="24" y="24" width="176" height="176" rx="10" fill="{PANEL}" stroke="{BORDER}"/>',
-        avatar(s["avatar"], 24, 24, 176),
+        f'<rect x="24" y="24" width="176" height="176" rx="10" fill="#6e7f96" stroke="{BORDER}"/>',
+        avatar(32, 32, 10),
         f'<rect x="24" y="212" width="176" height="44" rx="10" fill="{GOLD}"/>',
         text(112, 242, f'NÍVEL {s["level"]}', 22, BG, "bold", "middle"),
         text(224, 52, s["name"], 26, TEXT, "bold"),
@@ -241,8 +259,11 @@ def hero_svg(s):
         ]
     body.append(text(24, 280, f'🔥 Sequência atual: {s["current"]} dias · Recorde: {s["best"]} dias', 12, MUTED))
     body.append(text(816, 280, f'Atualizado em {s["today"].strftime("%d/%m/%Y")}', 11, MUTED, "normal", "end"))
+    style = (".bob{animation:bob 2.4s ease-in-out infinite}"
+             "@keyframes bob{50%{transform:translateY(-4px)}}"
+             "@media (prefers-reduced-motion:reduce){.bob{animation:none}}")
     title = f'{s["name"]}: nível {s["level"]}, {s["class"]}, {s["xp"]} XP'
-    return svg(840, 300, "".join(body), title)
+    return svg(840, 300, "".join(body), title, style)
 
 
 def achievements_svg(s):
