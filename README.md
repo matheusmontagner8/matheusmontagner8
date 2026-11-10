@@ -13,7 +13,7 @@
 <!-- PROJETOS:START -->
 | Projeto | Descrição | Linguagem | Última atualização |
 |---|---|---|---|
-| [Modelagem-de-Dados](https://github.com/matheusmontagner8/Modelagem-de-Dados) | Modelagem de Banco de Dados - Modelo Conceitual (DER) e Dicionário de Dados | HTML | 08/11/2026 |
+| [Modelagem-de-Dados](https://github.com/matheusmontagner8/Modelagem-de-Dados) | Modelagem de Banco de Dados - Modelo Conceitual (DER) e Dicionário de Dados | HTML | 10/11/2026 |
 | [portfolio-matheus-montagner](https://github.com/matheusmontagner8/portfolio-matheus-montagner) | Portfólio de projetos | Python | 16/09/2026 |
 | [achadinhos-linktree](https://github.com/matheusmontagner8/achadinhos-linktree) | Página de links (estilo Linktree) do Achadinhos Mais | HTML | 15/09/2026 |
 | [triage-trio-plus](https://github.com/matheusmontagner8/triage-trio-plus) | Projeto de Engenharia de Prompt e IA | TypeScript | 10/09/2026 |
