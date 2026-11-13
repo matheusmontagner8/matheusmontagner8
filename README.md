@@ -13,7 +13,7 @@
 <!-- PROJETOS:START -->
 | Projeto | Descrição | Linguagem | Última atualização |
 |---|---|---|---|
-| [colorbitz](https://github.com/matheusmontagner8/colorbitz) | Colorbitz: puzzle neon para Android feito em Godot 4 + GDScript. Toque em grupos de blocos da mesma cor. | GDScript | 11/11/2026 |
+| [colorbitz](https://github.com/matheusmontagner8/colorbitz) | Colorbitz: puzzle neon para Android feito em Godot 4 + GDScript. Toque em grupos de blocos da mesma cor. | GDScript | 12/11/2026 |
 | [Modelagem-de-Dados](https://github.com/matheusmontagner8/Modelagem-de-Dados) | Modelagem de Banco de Dados - Modelo Conceitual (DER) e Dicionário de Dados | HTML | 10/11/2026 |
 | [portfolio-matheus-montagner](https://github.com/matheusmontagner8/portfolio-matheus-montagner) | Portfólio de projetos | Python | 16/09/2026 |
 | [achadinhos-linktree](https://github.com/matheusmontagner8/achadinhos-linktree) | Página de links (estilo Linktree) do Achadinhos Mais | HTML | 15/09/2026 |
