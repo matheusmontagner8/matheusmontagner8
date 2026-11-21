@@ -13,8 +13,8 @@
 <!-- PROJETOS:START -->
 | Projeto | Descrição | Linguagem | Última atualização |
 |---|---|---|---|
+| [portfolio-matheus-montagner](https://github.com/matheusmontagner8/portfolio-matheus-montagner) | Portfólio de projetos | Python | 20/11/2026 |
 | [sql-vendas-autopecas](https://github.com/matheusmontagner8/sql-vendas-autopecas) | Análise de vendas de uma distribuidora de autopeças fictícia: 11 perguntas de negócio em SQL (CTEs, funções de janela, curva ABC, RFM) | Python | 19/11/2026 |
-| [portfolio-matheus-montagner](https://github.com/matheusmontagner8/portfolio-matheus-montagner) | Portfólio de projetos | Python | 18/11/2026 |
 | [achadinhos-linktree](https://github.com/matheusmontagner8/achadinhos-linktree) | Página de links (estilo Linktree) do Achadinhos Mais | HTML | 18/11/2026 |
 | [Modelagem-de-Dados](https://github.com/matheusmontagner8/Modelagem-de-Dados) | Modelagem de Banco de Dados - Modelo Conceitual (DER) e Dicionário de Dados | HTML | 16/11/2026 |
 | [colorbitz](https://github.com/matheusmontagner8/colorbitz) | Colorbitz: puzzle neon para Android feito em Godot 4 + GDScript. Toque em grupos de blocos da mesma cor. | GDScript | 15/11/2026 |
